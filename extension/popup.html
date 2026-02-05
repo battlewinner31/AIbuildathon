@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scam Honeypot Guardian</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 380px;
+            min-height: 500px;
+            background: linear-gradient(135deg, #020617, #0f172a);
+            color: #e5e7eb;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 16px;
+        }
+
+        .header {
+            text-align: center;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #1e293b;
+            margin-bottom: 16px;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background: #1e293b;
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #3b82f6;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .section {
+            background: #1e293b;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 12px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .intel-list {
+            list-style: none;
+        }
+
+        .intel-list li {
+            font-size: 12px;
+            padding: 6px 10px;
+            background: #0f172a;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            word-break: break-all;
+        }
+
+        .intel-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        .alert-item {
+            background: #0f172a;
+            border-left: 3px solid #dc2626;
+            padding: 10px;
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 8px;
+        }
+
+        .alert-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .alert-source {
+            font-size: 10px;
+            color: #94a3b8;
+            margin-bottom: 4px;
+        }
+
+        .alert-text {
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .alert-time {
+            font-size: 10px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+            margin-top: 8px;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            margin-top: 12px;
+            justify-content: center;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .toggle-section {
+            background: #1e293b;
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toggle-label {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .toggle-title {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .toggle-desc {
+            font-size: 10px;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 48px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #475569;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: #22c55e;
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(22px);
+        }
+
+        .warning-box {
+            background: rgba(234, 179, 8, 0.1);
+            border: 1px solid #eab308;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 16px;
+            font-size: 11px;
+            color: #fbbf24;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 8px;
+            background: #1e293b;
+            border: none;
+            border-radius: 6px;
+            color: #94a3b8;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🍯 Scam Honeypot Guardian</h1>
+        <p>AI-Powered Real-Time Scam Protection</p>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" id="totalScams">0</div>
+            <div class="stat-label">Scams Detected</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="intelCount">0</div>
+            <div class="stat-label">Intel Extracted</div>
+        </div>
+    </div>
+
+    <!-- AUTO-REPLY TOGGLE -->
+    <div class="toggle-section">
+        <div class="toggle-label">
+            <span class="toggle-title">🤖 AI Auto-Reply</span>
+            <span class="toggle-desc">Automatically engage scammers</span>
+        </div>
+        <label class="toggle-switch">
+            <input type="checkbox" id="autoReplyToggle">
+            <span class="toggle-slider"></span>
+        </label>
+    </div>
+
+    <div class="warning-box" id="autoReplyWarning" style="display: none;">
+        ⚠️ <strong>Auto-Reply Active:</strong> The AI will automatically respond to detected scam messages to gather intelligence.
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" data-tab="alerts">🚨 Alerts</button>
+        <button class="tab" data-tab="intelligence">🧠 Intelligence</button>
+    </div>
+
+    <div id="alerts" class="tab-content active">
+        <div class="section">
+            <div class="section-title">📡 Recent Scam Alerts</div>
+            <div id="alertsList">
+                <div class="empty-state">No scams detected yet. Stay safe!</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="intelligence" class="tab-content">
+        <div class="section">
+            <div class="section-title">📱 Phone Numbers</div>
+            <ul class="intel-list" id="phonesList">
+                <li class="empty-state">None captured yet</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <div class="section-title">🔗 Phishing Links</div>
+            <ul class="intel-list" id="linksList">
+                <li class="empty-state">None captured yet</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <div class="section-title">💳 UPI IDs</div>
+            <ul class="intel-list" id="upiList">
+                <li class="empty-state">None captured yet</li>
+            </ul>
+        </div>
+    </div>
+
+    <button class="btn btn-danger" id="clearBtn">Clear All Data</button>
+
+    <div class="status-indicator">
+        <span class="status-dot"></span>
+        <span>Protection Active</span>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

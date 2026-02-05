@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Extension Icons</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        canvas { border: 1px solid #ccc; margin: 10px; }
+        .instructions { background: #f0f0f0; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🍯 Generate Extension Icons</h1>
+    <div class="instructions">
+        <p><strong>Instructions:</strong></p>
+        <ol>
+            <li>Open this file in a browser</li>
+            <li>Right-click each canvas below and "Save image as..."</li>
+            <li>Save as: icon16.png, icon48.png, icon128.png</li>
+        </ol>
+    </div>
+    
+    <h3>16x16</h3>
+    <canvas id="icon16" width="16" height="16"></canvas>
+    
+    <h3>48x48</h3>
+    <canvas id="icon48" width="48" height="48"></canvas>
+    
+    <h3>128x128</h3>
+    <canvas id="icon128" width="128" height="128"></canvas>
+
+    <script>
+        function drawIcon(canvasId, size) {
+            const canvas = document.getElementById(canvasId);
+            const ctx = canvas.getContext('2d');
+            
+            // Background
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Honeypot emoji (simplified)
+            ctx.fillStyle = '#fbbf24';
+            const fontSize = size * 0.6;
+            ctx.font = `${fontSize}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('🍯', size/2, size/2);
+        }
+        
+        drawIcon('icon16', 16);
+        drawIcon('icon48', 48);
+        drawIcon('icon128', 128);
+    </script>
+</body>
+</html>

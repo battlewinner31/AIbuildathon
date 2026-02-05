@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "name": "Scam Honeypot Guardian",
+  "version": "1.0.0",
+  "description": "Real-time AI-powered scam detection and protection for messages",
+  "permissions": [
+    "storage",
+    "notifications",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://127.0.0.1:8000/*",
+    "https://*.whatsapp.com/*",
+    "https://web.whatsapp.com/*",
+    "https://mail.google.com/*",
+    "https://*.facebook.com/*",
+    "https://*.messenger.com/*",
+    "https://*.telegram.org/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://web.whatsapp.com/*",
+        "https://mail.google.com/*",
+        "https://*.facebook.com/*",
+        "https://*.messenger.com/*",
+        "https://web.telegram.org/*"
+      ],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
