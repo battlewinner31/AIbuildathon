@@ -9,105 +9,83 @@ import {
 } from "recharts";
 
 export default function App() {
-    const [liveMessages, setLiveMessages] = useState([]);
+    const [loaded, setLoaded] = useState(false);
     const [conversation, setConversation] = useState([]);
-    const [intelligence, setIntelligence] = useState({});
-    const [analytics, setAnalytics] = useState({
-        total: 0,
-        success: 0,
-        breakdown: []
-    });
+    const [intel, setIntel] = useState({});
+    const [stats, setStats] = useState(null);
 
-    // 🔁 FAKE REAL-TIME STREAM (DEMO)
     useEffect(() => {
-        const fakeMessages = [
-            {
-                from: "+91 98765 43210",
-                platform: "SMS",
-                content: "Your KYC is blocked. Click link immediately",
-                isSpam: true,
-                conversation: [
-                    { sender: "scammer", text: "Your account will be blocked today" },
-                    { sender: "ai", text: "Which bank is this related to?" },
-                    { sender: "scammer", text: "SBI" },
-                    { sender: "ai", text: "Please confirm branch location" }
-                ],
-                intelligence: {
-                    "Phone Numbers": ["+91 98765 43210"],
-                    "Phishing Links": ["http://fake-kyc-link.com"],
-                    "Keywords": ["KYC", "Urgent", "Blocked"]
-                },
-                analytics: {
-                    total: 21,
-                    success: 91,
-                    breakdown: [
-                        { type: "SMS", count: 13 },
-                        { type: "Call", count: 8 }
-                    ]
-                }
-            }
-        ];
+        setTimeout(() => {
+            setConversation([
+                { sender: "scammer", text: "Your KYC is expired" },
+                { sender: "ai", text: "Which bank is this regarding?" },
+                { sender: "scammer", text: "SBI" },
+                { sender: "ai", text: "Please confirm branch location" }
+            ]);
 
-        let index = 0;
-        const interval = setInterval(() => {
-            if (index < fakeMessages.length) {
-                const msg = fakeMessages[index];
-                setLiveMessages(prev => [msg, ...prev]);
-                setConversation(msg.conversation);
-                setIntelligence(msg.intelligence);
-                setAnalytics(msg.analytics);
-                index++;
-            }
-        }, 3500);
+            setIntel({
+                "Phone Number": ["+91 98765 43210"],
+                "Phishing Link": ["http://fake-kyc.com"],
+                "Keywords": ["KYC", "Urgent", "Verify"]
+            });
 
-        return () => clearInterval(interval);
+            setStats({
+                total: 24,
+                success: 92,
+                breakdown: [
+                    { type: "SMS", count: 14 },
+                    { type: "Call", count: 10 }
+                ]
+            });
+
+            setLoaded(true);
+        }, 1200);
     }, []);
 
     return (
-        <div style={styles.app}>
-            <header style={styles.header}>
+        <div style={styles.page}>
+            {/* HERO */}
+            <section style={styles.hero}>
                 <h1>🍯 Scam Honeypot Guardian</h1>
-                <p>Real-Time AI Scam Detection & Intelligence Platform</p>
-            </header>
+                <p>
+                    A consumer-first AI app that detects scams in real time,
+                    safely engages attackers, and protects your identity.
+                </p>
+            </section>
 
-            <div style={styles.grid}>
-                {/* LIVE FEED */}
-                <section style={styles.card}>
-                    <h2>📡 Live Incoming Communications</h2>
-                    {liveMessages.map((msg, i) => (
-                        <div
-                            key={i}
-                            style={{
-                                ...styles.messageCard,
-                                animation: "fadeSlide 0.4s ease-out"
-                            }}
-                        >
-                            <div style={styles.messageHeader}>
-                                <span>{msg.platform}</span>
-                                <span>{msg.from}</span>
-                            </div>
-                            <p>{msg.content}</p>
-                            {msg.isSpam && (
-                                <span style={styles.spamBadge}>🚨 SPAM</span>
-                            )}
+            {/* LIVE ALERT */}
+            <FadeIn>
+                <section style={styles.section}>
+                    <h2>🚨 Live Scam Alert</h2>
+                    <div style={styles.alertCard}>
+                        <div style={styles.alertHeader}>
+                            <span>SMS</span>
+                            <span>+91 98765 43210</span>
                         </div>
-                    ))}
+                        <p>Your KYC will be blocked today. Verify immediately.</p>
+                        <span style={styles.spamBadge}>Spam Detected</span>
+                    </div>
                 </section>
+            </FadeIn>
 
-                {/* CHAT */}
-                <section style={styles.card}>
-                    <h2>🤖 AI Honeypot Conversation</h2>
-                    <div style={styles.chatContainer}>
+            {/* CHAT */}
+            <FadeIn delay={0.1}>
+                <section style={styles.section}>
+                    <h2>🤖 AI Conversation</h2>
+                    <div style={styles.chat}>
                         {conversation.map((c, i) => (
                             <div
                                 key={i}
                                 style={{
-                                    ...styles.chatBubble,
+                                    ...styles.bubble,
                                     alignSelf:
                                         c.sender === "ai" ? "flex-end" : "flex-start",
                                     background:
-                                        c.sender === "ai" ? "#2563eb" : "#7f1d1d",
-                                    animation: "popIn 0.25s ease-out"
+                                        c.sender === "ai"
+                                            ? "linear-gradient(135deg,#3b82f6,#22d3ee)"
+                                            : "#e5e7eb",
+                                    color: c.sender === "ai" ? "white" : "#0f172a",
+                                    animation: `slideUp .3s ease ${i * 0.08}s both`
                                 }}
                             >
                                 {c.text}
@@ -115,144 +93,171 @@ export default function App() {
                         ))}
                     </div>
                 </section>
+            </FadeIn>
 
-                {/* INTEL */}
-                <section style={styles.card}>
+            {/* INTELLIGENCE */}
+            <FadeIn delay={0.2}>
+                <section style={styles.section}>
                     <h2>🧠 Extracted Intelligence</h2>
-                    {Object.entries(intelligence).map(([key, values]) => (
-                        <div
-                            key={key}
-                            style={{
-                                ...styles.intelBlock,
-                                animation: "fadeIn 0.4s ease-in"
-                            }}
-                        >
-                            <strong>{key}</strong>
-                            <ul>
-                                {values.map((v, i) => (
-                                    <li key={i}>{v}</li>
-                                ))}
-                            </ul>
+                    <div style={styles.intelGrid}>
+                        {Object.entries(intel).map(([k, v]) => (
+                            <div key={k} style={styles.intelCard}>
+                                <strong>{k}</strong>
+                                <ul>
+                                    {v.map((x, i) => (
+                                        <li key={i}>{x}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            </FadeIn>
+
+            {/* ANALYTICS */}
+            {stats && (
+                <FadeIn delay={0.3}>
+                    <section style={styles.section}>
+                        <h2>📊 Insights</h2>
+                        <div style={styles.stats}>
+                            <div>
+                                <strong>{stats.total}</strong>
+                                <span>Total Scams</span>
+                            </div>
+                            <div>
+                                <strong>{stats.success}%</strong>
+                                <span>Success Rate</span>
+                            </div>
                         </div>
-                    ))}
-                </section>
 
-                {/* ANALYTICS */}
-                <section style={styles.card}>
-                    <h2>📊 Analytics</h2>
-                    <p>Total Scams Detected: {analytics.total}</p>
-                    <p>Success Rate: {analytics.success}%</p>
+                        <ResponsiveContainer width="100%" height={240}>
+                            <BarChart data={stats.breakdown}>
+                                <XAxis dataKey="type" />
+                                <YAxis />
+                                <Tooltip />
+                                <Bar dataKey="count" />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </section>
+                </FadeIn>
+            )}
 
-                    <ResponsiveContainer width="100%" height={200}>
-                        <BarChart data={analytics.breakdown}>
-                            <XAxis dataKey="type" />
-                            <YAxis />
-                            <Tooltip />
-                            <Bar dataKey="count" />
-                        </BarChart>
-                    </ResponsiveContainer>
-                </section>
-            </div>
+            {/* CTA */}
+            <section style={styles.cta}>
+                <button style={styles.ctaBtn}>
+                    🚨 Report to Cyber Cell
+                </button>
+            </section>
 
-            <button style={styles.reportBtn}>
-                🚨 Report to Cyber Cell
-            </button>
-
-            {/* CSS ANIMATIONS */}
-            <style>
-                {`
-          @keyframes fadeSlide {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-          }
-
-          @keyframes popIn {
-            from { opacity: 0; transform: scale(0.95); }
-            to { opacity: 1; transform: scale(1); }
-          }
-
-          @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-          }
-        `}
-            </style>
+            <style>{animations}</style>
         </div>
     );
 }
 
-/* 🎨 STYLES */
+/* FADE WRAPPER */
+function FadeIn({ children, delay = 0 }) {
+    return (
+        <div style={{ animation: `fadeUp .6s ease ${delay}s both` }}>
+            {children}
+        </div>
+    );
+}
+
+/* ANIMATIONS */
+const animations = `
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+`;
+
+/* STYLES */
 const styles = {
-    app: {
-        minHeight: "100vh",
-        background: "linear-gradient(135deg, #020617, #020617)",
-        color: "#e5e7eb",
+    page: {
+        background:
+            "linear-gradient(180deg,#f8fafc,#eef2ff)",
+        color: "#0f172a",
+        fontFamily: "Inter, system-ui, sans-serif"
+    },
+    hero: {
+        padding: "90px 24px",
+        maxWidth: 900,
+        margin: "0 auto",
+        textAlign: "center"
+    },
+    section: {
+        maxWidth: 1000,
+        margin: "80px auto",
+        padding: "0 24px"
+    },
+    alertCard: {
+        background: "white",
         padding: 24,
-        fontFamily: "Inter, Arial, sans-serif"
+        borderRadius: 20,
+        boxShadow: "0 20px 40px rgba(0,0,0,0.08)"
     },
-    header: {
-        marginBottom: 30
-    },
-    grid: {
-        display: "grid",
-        gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-        gap: 20
-    },
-    card: {
-        background: "#020617",
-        border: "1px solid #1e293b",
-        borderRadius: 12,
-        padding: 16,
-        transition: "transform 0.2s ease, box-shadow 0.2s ease"
-    },
-    messageCard: {
-        background: "#020617",
-        border: "1px solid #1e293b",
-        borderRadius: 10,
-        padding: 12,
-        marginTop: 10
-    },
-    messageHeader: {
+    alertHeader: {
         display: "flex",
         justifyContent: "space-between",
-        fontSize: 12,
-        color: "#94a3b8"
+        color: "#64748b",
+        fontSize: 14
     },
     spamBadge: {
-        marginTop: 6,
+        marginTop: 12,
         display: "inline-block",
-        background: "#dc2626",
-        padding: "3px 10px",
-        borderRadius: 999,
-        fontSize: 12,
-        animation: "pulse 1.5s infinite"
+        color: "#dc2626",
+        fontWeight: 600
     },
-    chatContainer: {
+    chat: {
         display: "flex",
-        flexDirection: "column"
+        flexDirection: "column",
+        gap: 12
     },
-    chatBubble: {
-        marginTop: 8,
-        padding: 10,
-        borderRadius: 10,
-        maxWidth: "75%"
+    bubble: {
+        padding: "14px 18px",
+        borderRadius: 20,
+        maxWidth: "70%"
     },
-    intelBlock: {
-        marginTop: 10
+    intelGrid: {
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit,minmax(240px,1fr))",
+        gap: 24
     },
-    reportBtn: {
-        marginTop: 30,
-        width: "100%",
-        padding: 16,
-        background: "#dc2626",
+    intelCard: {
+        background: "white",
+        padding: 20,
+        borderRadius: 18,
+        boxShadow: "0 10px 30px rgba(0,0,0,0.06)",
+        transition: "transform .2s ease",
+        cursor: "default"
+    },
+    stats: {
+        display: "flex",
+        gap: 40,
+        marginBottom: 20
+    },
+    cta: {
+        padding: "100px 24px",
+        textAlign: "center"
+    },
+    ctaBtn: {
+        padding: "20px 42px",
+        fontSize: 20,
+        borderRadius: 999,
         border: "none",
-        borderRadius: 12,
+        background:
+            "linear-gradient(135deg,#ef4444,#f87171)",
         color: "white",
-        fontSize: 18,
         cursor: "pointer",
-        transition: "transform 0.2s ease"
+        transition: "transform .2s ease"
     }
 };
+
+
 
 
 
